@@ -1,0 +1,22 @@
+#ifndef GLOBALS_H
+#define GLOBALS_H
+
+enum STATES { TITLE, LOAD, PLAYING, END };
+enum KEYS{ UP, DOWN, LEFT, RIGHT, SPACE, ENTER };
+enum TILE_TYPES{ NORMAL, OBSTACLE, TRAP, WATER, LIMIT };
+enum TILE_IMAGE_TYPES{ TILE_GROUND, TILE_TREE, TILE_ROCK, TILE_WATER };
+enum LIMIT{ L, R, U, D, S };
+
+const int FPS = 60;
+const int RESMULTIPLIER = 1;
+const int TILESIZE = 64;
+
+const int NBTILESWIDTH = 16;
+const int NBTILESHEIGHT = 9;
+const int NBTILESUI = 3;
+
+const int WIDTH = NBTILESWIDTH * TILESIZE;
+const int HEIGHT = NBTILESHEIGHT * TILESIZE + NBTILESUI * TILESIZE;
+
+const int levelDBlines = 10;
+#endif

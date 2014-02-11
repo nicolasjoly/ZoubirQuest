@@ -1,0 +1,22 @@
+Type
+0: ground
+1: tree
+
+isObstacle
+0: false
+1: true
+
+isLimit
+0: false
+1: true
+
+isTeleport
+0: false
+1: true
+
+whereTo (screen)
+
+whereTo (tile)
+
+
+type isObstacle isLimit isTeleport whereTo whereToTile
