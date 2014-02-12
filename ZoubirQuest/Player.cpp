@@ -34,7 +34,7 @@ Player::~Player()
 void Player::attack(std::vector<Enemy*>& enemies, Screen& screen)
 {
 	if (!attacking)
-		attackInstance = new Attack(4, *this);
+		attackInstance = new Attack(1, *this);
 	attacking = true;
 
 	attackInstance->checkCollision(enemies, screen);
