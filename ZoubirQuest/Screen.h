@@ -16,7 +16,7 @@ public:
 	ImageLoader imageLoader;
 	std::vector<Tile*> tiles;
 
-	Screen(int id, ImageLoader& imageLoader);
+	Screen(ImageLoader& imageLoader);
 	~Screen();
 	void render();
 	void init(int id);

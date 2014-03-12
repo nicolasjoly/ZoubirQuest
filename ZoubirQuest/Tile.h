@@ -16,12 +16,13 @@ protected:
 	int whereTo;
 	int whereToTile;
 	int isLimit;
+	int limit;
 	int isTeleport;
 	bool isObstacle;
 	ALLEGRO_BITMAP *image = NULL;
 
 public:
-	Tile(int posX, int posY, int type, bool isObstacle, bool isLimit, int isTeleport, int whereTo, int whereToTile, int id, ALLEGRO_BITMAP *image);
+	Tile(int posX, int posY, int type, int whereTo, int whereToTile, int id, ALLEGRO_BITMAP *image);
 	~Tile();
 	void init(double x, double y, int type);
 	void render();

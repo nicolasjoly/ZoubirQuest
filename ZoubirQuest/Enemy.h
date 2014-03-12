@@ -4,6 +4,7 @@
 //Forward declarations
 class Screen;
 class Attack;
+class Player;
 
 //base class, create dummy enemy for tests
 class Enemy
@@ -25,10 +26,12 @@ public:
 	Enemy(double x, double y);
 	~Enemy();
 	void render();
+	void move(Screen& screen, Player &player);
 	void move(Screen& screen);
 	void checkLimit(int dir, Screen& screen, int nextTileC1, int nextTileC2);
-	void loseLife(){ --life; }
-	void hitRecoil(Screen& screen, Attack& attack);
+	void loseLife(int strength){ life -= strength; }
+	void hitRecoil(Screen& screen, int directionRecoil);
+	int calculateDirection(Player &player);
 
 	//Getters
 	double getX(){ return x; }
