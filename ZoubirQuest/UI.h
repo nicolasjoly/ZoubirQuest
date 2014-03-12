@@ -16,7 +16,20 @@ public:
 	UI();
 	~UI();
 	void render(Player* player, Screen* screen, ALLEGRO_FONT* font);
+	int item;
 
+private:
+	ALLEGRO_BITMAP *itemBackgroundZ = NULL;
+	ALLEGRO_BITMAP *itemBackgroundX = NULL;
+	ALLEGRO_BITMAP *itemBomb = NULL;
+	ALLEGRO_BITMAP *itemSword = NULL;
+	ALLEGRO_BITMAP *itemArrow = NULL;
+	ALLEGRO_BITMAP *lifeCircle = NULL;
+	ALLEGRO_BITMAP *lifeText = NULL;
+
+	int map; //type a changer
+	int life;
+	int keys;
 };
 
 #endif

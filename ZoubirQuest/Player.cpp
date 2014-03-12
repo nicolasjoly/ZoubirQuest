@@ -67,7 +67,7 @@ void Player::update()
 	}
 }
 
-void Player::hitRecoil(Screen& screen, Enemy& enemy)
+void Player::hitRecoil(Screen& screen, int directionRecoil)
 {
 	//std::cout << "RECOIL" << std::endl;
 	//moveCounter = 0;
@@ -75,7 +75,7 @@ void Player::hitRecoil(Screen& screen, Enemy& enemy)
 	int dirTemp = direction;
 	velocity = 50; //peut crasher pres d'un mur
 
-	direction = enemy.getDirection();
+	direction = directionRecoil;
 	//std::cout << "Direction: " << direction << std::endl;
 
 	switch (direction)
@@ -125,7 +125,7 @@ bool Player::checkCollision(std::vector<Enemy*>& enemies, Screen& screen)
 			loseLife();
 
 			attacking = false;
-			hitRecoil(screen, *enemies[i]);
+			hitRecoil(screen, enemies[i]->getDirection());
 
 			/*if(enemies[i]->getLife() == 0)
 			{

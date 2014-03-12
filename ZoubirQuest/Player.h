@@ -63,7 +63,7 @@ public:
 	void checkTeleport(int dir, Screen& screen, int nextTileC1, int nextTileC2);
 	bool checkCollision(std::vector<Enemy*>& enemies, Screen& screen);
 	void loseLife(){ life--; }
-	void hitRecoil(Screen& screen, Enemy& enemy);
+	void hitRecoil(Screen& screen, int directionRecoil);
 	//void resetMove();
 
 	//Getters
@@ -90,7 +90,7 @@ public:
 	void setVelocity(double velX){ Player::velocity = velocity; }
 	//void setDirX(int dirX){Player::dirX = dirX;}
 	//void setDirY(int dirY){Player::dirY = dirY;}
-	//void setLife(int life){Player::life = life;}
+	void setLife(int life){ Player::life = life; }
 	//void setMagicLevel(int magicLevel){Player::magicLevel = magicLevel;}
 	//void setWeaponPower(int weaponPower){Player::weaponPower = weaponPower;}
 	//void setArmorPower(int armorPower){Player::armorPower = armorPower;}

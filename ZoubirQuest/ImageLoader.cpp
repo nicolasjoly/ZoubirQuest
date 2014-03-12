@@ -3,7 +3,7 @@
 
 ImageLoader::ImageLoader()
 {
-	tree_tile = al_load_bitmap("images/tile_tree.png");
+	tree_tile = al_load_bitmap("images/tree2.png");
 	ground_tile = al_load_bitmap("images/tile_ground.png");
 }
 

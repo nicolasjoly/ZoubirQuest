@@ -1,31 +1,49 @@
 #include "Tile.h"
+#include "Globals.h"
 
-
-Tile::Tile(int posX, int posY, int type, bool isObstacle, bool isLimit, int isTeleport, int whereTo, int whereToTile, int id, ALLEGRO_BITMAP *image)
+Tile::Tile(int posX, int posY, int type, int whereTo, int whereToTile, int id, ALLEGRO_BITMAP *image)
 {
+	boundX = TILESIZE / 2;
+	boundY = TILESIZE / 2;
 
-	boundX = TILESIZE / 2 * RESMULTIPLIER;
-	boundY = TILESIZE / 2 * RESMULTIPLIER;
-
-	x = posX * TILESIZE * RESMULTIPLIER + boundX;
-	y = posY * TILESIZE * RESMULTIPLIER + boundY;
+	x = posX * TILESIZE + boundX;
+	y = posY * TILESIZE + boundY;
 
 	Tile::type = type;
 	Tile::id = id;
-
-	Tile::isLimit = isLimit;
-	Tile::isTeleport = isTeleport;
 	Tile::whereTo = whereTo;
 	Tile::whereToTile = whereToTile;
-	Tile::isObstacle = isObstacle;
+
+	//Limites
+	if (id % 16 == 0)
+	{
+		limit = LIMIT_L;
+		isLimit = true;
+	}
+	else if (id % 16 == 15)
+	{
+		limit = LIMIT_R;
+		isLimit = true;
+	}
+	else if (id <= 15)
+	{
+		limit = LIMIT_U;
+		isLimit = true;
+	}
+	else if (id >= 128)
+	{
+		limit = LIMIT_D;
+		isLimit = true;
+	}
+
+	//Teleport (a traiter)
+	Tile::isTeleport = 0;
+
+	//Obstacle
+	if (type == 1)
+		isObstacle = true;
 
 	Tile::image = image;
-	//Tile::tileImage = al_load_bitmap("images/tile_tree.png"); //MEMORY LEAK. IMAGE IS LOADED EVERYTIME FOR EVERY TILE
-
-	/*if(type == OBSTACLE)
-	isObstacle = true;*/
-
-	//limit mapping
 }
 
 Tile::~Tile()

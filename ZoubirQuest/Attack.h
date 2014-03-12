@@ -2,6 +2,7 @@
 #define ATTACK_H
 
 #include <vector>
+#include <allegro5\allegro_primitives.h>
 
 //Forward declarations
 class Player;
@@ -10,7 +11,7 @@ class Enemy;
 
 class Attack
 {
-public:
+private:
 	//Attributes
 	double x;
 	double y;
@@ -19,7 +20,9 @@ public:
 	int direction;
 	bool colliding; //NA
 	int strength;
+	ALLEGRO_BITMAP *image = NULL;
 
+public:
 	//Methods
 	Attack(int strength, Player& player);
 	~Attack();

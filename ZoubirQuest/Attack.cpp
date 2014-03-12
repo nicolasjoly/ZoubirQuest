@@ -11,7 +11,6 @@ Attack::Attack(int strength, Player& player)
 	Attack::strength = strength;
 	direction = player.getDirection();
 
-
 	switch (direction)
 	{
 	case U:
@@ -19,24 +18,28 @@ Attack::Attack(int strength, Player& player)
 		y = player.getY() - player.getRenderbY() - 16;
 		boundX = 6;
 		boundY = 16;
+		image = al_load_bitmap("images/sword-up.png");
 		break;
 	case D:
 		x = player.getX();
 		y = player.getY() + player.getRenderbY() + 16;
 		boundX = 6;
 		boundY = 16;
+		image = al_load_bitmap("images/sword-down.png");
 		break;
 	case L:
 		x = player.getX() - player.getRenderbX() - 16;
 		y = player.getY();
 		boundX = 16;
 		boundY = 6;
+		image = al_load_bitmap("images/sword-left.png");
 		break;
 	case R:
 		x = player.getX() + player.getRenderbX() + 16;
 		y = player.getY();
 		boundX = 16;
 		boundY = 6;
+		image = al_load_bitmap("images/sword-right.png");
 		break;
 	}
 }
@@ -67,11 +70,11 @@ bool Attack::checkCollision(std::vector<Enemy*>& enemies, Screen& screen)
 			collided = true;
 			colliding = true;
 			std::cout << "COLLISION ATTACK - ENEMY\n";
-			enemies[i]->loseLife();
+			enemies[i]->loseLife(strength);
 
-			enemies[i]->hitRecoil(screen, *this);
+			enemies[i]->hitRecoil(screen, direction);
 
-			if (enemies[i]->getLife() == 0)
+			if (enemies[i]->getLife() <= 0)
 			{
 				enemies.erase(enemies.begin() + i);
 			}
@@ -85,5 +88,6 @@ bool Attack::checkCollision(std::vector<Enemy*>& enemies, Screen& screen)
 void Attack::render(Player& player)
 {
 	direction = player.getDirection();
-	al_draw_filled_rectangle(x - boundX, y - boundY, x + boundX, y + boundY, al_map_rgb(255, 228, 196));
+	//al_draw_bitmap(image, x - boundX, y - boundY, x + boundX, y + boundY, 0);
+	al_draw_bitmap(image, x - boundX, y - boundY, 0);
 }
