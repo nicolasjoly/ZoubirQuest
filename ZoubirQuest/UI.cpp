@@ -2,8 +2,6 @@
 
 UI::UI()
 {
-	//font = al_load_font("font/arial.ttf", 12, 0);
-	//test
 	itemBackgroundZ = al_load_bitmap("images/alpha/z.png");
 	itemBackgroundX = al_load_bitmap("images/alpha/x.png");
 	itemSword = al_load_bitmap("images/sword-up.png");
@@ -11,25 +9,24 @@ UI::UI()
 	lifeCircle = al_load_bitmap("images/alpha/life.png");
 	itemBomb = al_load_bitmap("images/bombMenu.png");
 	itemArrow = al_load_bitmap("images/arrow-u.png");
-
 }
 
 UI::~UI()
-{}
+{
+	al_destroy_bitmap(itemBackgroundZ);
+	al_destroy_bitmap(itemBackgroundX);
+	al_destroy_bitmap(itemSword);
+	al_destroy_bitmap(lifeText);
+	al_destroy_bitmap(lifeCircle);
+	al_destroy_bitmap(itemBomb);
+	al_destroy_bitmap(itemArrow);
+}
 
 void UI::render(Player* player, Screen* screen, ALLEGRO_FONT* font)
 {
 	al_draw_filled_rectangle(0, NBTILESHEIGHT * TILESIZE, WIDTH, HEIGHT, al_map_rgb(0, 0, 0));
-	//al_draw_textf(font, al_map_rgb(0, 255, 0), 2, NBTILESHEIGHT * TILESIZE + 10, ALLEGRO_ALIGN_LEFT, "curTile: %i", player->getCurTile());
-	//al_draw_textf(font, al_map_rgb(0, 255, 0), 2, NBTILESHEIGHT * TILESIZE + 30, ALLEGRO_ALIGN_LEFT, "x: %f", player->getX());
-	//al_draw_textf(font, al_map_rgb(0, 255, 0), 2, NBTILESHEIGHT * TILESIZE + 50, ALLEGRO_ALIGN_LEFT, "y: %f", player->getY());
-	//al_draw_textf(font, al_map_rgb(0, 255, 0), 2, NBTILESHEIGHT * TILESIZE + 70, ALLEGRO_ALIGN_LEFT, "Current screen ID: %i", screen->getID());
-	//al_draw_textf(font, al_map_rgb(0, 255, 0), 2, NBTILESHEIGHT * TILESIZE + 90, ALLEGRO_ALIGN_LEFT, "Player life: %i", player->getLife());
-	//al_draw_textf(font, al_map_rgb(0, 255, 0), WIDTH / 2, NBTILESHEIGHT * TILESIZE + 50, ALLEGRO_ALIGN_CENTRE, "PROTOTYPE PROTOTYPE PROTOTYPE PROTOTYPE PROTOTYPE PROTOTYPE PROTOTYPE");
 	al_draw_bitmap(itemBackgroundZ, 50, NBTILESHEIGHT * TILESIZE + 30, 0);
-
 	al_draw_bitmap(itemBackgroundX, 150, NBTILESHEIGHT * TILESIZE + 30, 0);
-
 	al_draw_bitmap(lifeText, 400, NBTILESHEIGHT * TILESIZE + 20, 0);
 	al_draw_bitmap(itemSword, 75, NBTILESHEIGHT * TILESIZE + 80, 0);
 

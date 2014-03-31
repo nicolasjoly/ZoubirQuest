@@ -154,3 +154,6 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+/ZoubirQuest/ZoubirQuest.vcxproj
+/ZoubirQuest/ZoubirQuest.vcxproj.filters
+/ZoubirQuest/ZoubirQuest.vcxproj.user

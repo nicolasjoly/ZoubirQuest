@@ -3,13 +3,15 @@
 #include "Globals.h"
 #include "Tile.h"
 #include "Globals.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
 
-Screen::Screen(ImageLoader& imageLoader)
+Screen::Screen()
 {
-	this->imageLoader = imageLoader;
+	imageLoader = new ImageLoader();
+	enemySpawner = new EnemySpawner();
 }
 
 Screen::~Screen()
@@ -33,6 +35,7 @@ void Screen::init(int id)
 
 	//While we're not reading the level data for the right screen ID, we loop
 	levelDB >> read;
+
 	while (read != id && levelDB.eof() == false)
 	{
 		for (int i = 0; i < levelDBlines; i++)
@@ -61,14 +64,25 @@ void Screen::init(int id)
 			levelDB >> tempWhere;
 			levelDB >> tempWhereTile;
 
-			//Insert each tile in the tiles vector
-			tiles.insert(tiles.end(), new Tile(i, j, tempType, tempWhere, tempWhereTile, nbTiles, this->imageLoader.loadImage(tempType)));
 
+
+			//Insert each tile in the tiles vector
+			tiles.insert(tiles.end(), new Tile(i, j, tempType, tempWhere, tempWhereTile, nbTiles, imageLoader->loadImage(tempType)));
 			nbTiles++;
+
+			if (tempType == 2)
+			{
+				tiles[nbTiles - 1]->setTeleport();
+			}
+
+
 		}
 	}
 
 	levelDB.close();
+
+	enemySpawner->initScreen(Screen::id);
+
 }
 
 void Screen::render()

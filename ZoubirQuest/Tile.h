@@ -32,6 +32,7 @@ public:
 	void setY(int y){ Tile::y = y; }
 	void setBoundX(int boundX){ Tile::boundX = boundX; }
 	void setBoundY(int boundY){ Tile::boundY = boundY; }
+	void setTeleport(){ isTeleport = true; }
 
 	//Getters
 	int getX(){ return x; }

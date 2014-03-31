@@ -1,5 +1,7 @@
 #include "Player.h"
 #include "Enemy.h"
+#include <iostream>
+
 Player::Player()
 {
 	x = 100.0;
@@ -10,25 +12,34 @@ Player::Player()
 	renderbY = TILESIZE / 3; //render box
 	velocity = 4.0;
 	direction = D;
+	isInvincible = false;
+	invincibilityCounter = 0;
 	attacking = false;
 	attackCounter = 0;
 
 	teleported = false;
 
 	curTile = (x / (TILESIZE)) + (((int)(y / (TILESIZE))) * NBTILESWIDTH);
-
-	/* DEBUG
-	printf("X constructor: %f \n", x);
-	printf("Y constructor: %f \n", y);
-	printf("Current tile constructor: %i \n", curTile);
-	*/
-
 	life = 3;
+
+	//Animation
+	maxFrame = 3;
+	curFrame = 1;
+	frameCount = 0;
+	frameDelay = 6;
+	frameWidth = 64;
+	frameHeight = 64;
+	animationColumns = 3;
+	animationRow = 0;
+	animationDirection = D;
+	//ALLEGRO_BITMAP* image;
+	order = 1;
+	image = al_load_bitmap("images/zoubir_spritesheet_final.png");
 }
 
 Player::~Player()
 {
-
+	al_destroy_bitmap(image);
 }
 
 void Player::attack(std::vector<Enemy*>& enemies, Screen& screen)
@@ -40,16 +51,45 @@ void Player::attack(std::vector<Enemy*>& enemies, Screen& screen)
 	attackInstance->checkCollision(enemies, screen);
 }
 
+void Player::resetPlayer()
+{
+	life = 3;
+	x = 100.0;
+	y = 100.0;
+	direction = D;
+	isInvincible = false;
+}
 
 void Player::render()
 {
-	al_draw_filled_rectangle(x - renderbX, y - renderbY, x + renderbX, y + renderbY, al_map_rgb(34, 139, 34));
+	//al_draw_filled_rectangle(x - renderbX, y - renderbY, x + renderbX, y + renderbY, al_map_rgb(34, 139, 34));
 
 	//draw hitbox
-	al_draw_filled_rectangle(x - boundX, y - boundY, x + boundX, y + boundY, al_map_rgb(51, 51, 255));
+	//al_draw_filled_rectangle(x - boundX, y - boundY, x + boundX, y + boundY, al_map_rgb(51, 51, 255));
+	int frameX;
+	int frameY;
 
 	if (attacking)
 		attackInstance->render(*this);
+
+	//Test animation
+	if (isInvincible)
+	{
+		if (invincibilityCounter % 10 != 0)
+		{
+			frameX = (curFrame % animationColumns) * frameWidth;
+			frameY = animationRow * frameHeight;
+
+			al_draw_bitmap_region(image, frameX, frameY, frameWidth, frameHeight, x - frameWidth / 2, y - frameHeight / 2, 0);
+		}
+	}
+	else
+	{
+		frameX = (curFrame % animationColumns) * frameWidth;
+		frameY = animationRow * frameHeight;
+
+		al_draw_bitmap_region(image, frameX, frameY, frameWidth, frameHeight, x - frameWidth / 2, y - frameHeight / 2, 0);
+	}
 }
 
 void Player::update()
@@ -64,6 +104,17 @@ void Player::update()
 		}
 
 		attackCounter++;
+	}
+
+	if (isInvincible)
+	{
+		if (invincibilityCounter >= 60)
+		{
+			isInvincible = false;
+			invincibilityCounter = 0;
+		}
+
+		invincibilityCounter++;
 	}
 }
 
@@ -96,6 +147,8 @@ void Player::hitRecoil(Screen& screen, int directionRecoil)
 	//move(screen);
 
 	velocity = velTemp;
+
+	isInvincible = true;
 }
 
 
@@ -107,113 +160,118 @@ bool Player::checkCollision(std::vector<Enemy*>& enemies, Screen& screen)
 	double obY;
 	bool collided = false;
 
-	for (int i = 0; i < (int)(enemies.size()); i++)
+	if (!isInvincible)
 	{
-		oX = enemies[i]->getX();
-		oY = enemies[i]->getY();
-		obX = enemies[i]->getBoundX();
-		obY = enemies[i]->getBoundY();
-
-		if (x + boundX > oX - obX &&
-			x - boundX < oX + obX &&
-			y + boundY > oY - obY &&
-			y - boundY < oY + obY)
+		for (int i = 0; i < (int)(enemies.size()); i++)
 		{
-			collided = true;
-			//colliding = true;
-			//std:: cout << "COLLISION ATTACK - ENEMY\n";
-			loseLife();
+			oX = enemies[i]->getX();
+			oY = enemies[i]->getY();
+			obX = enemies[i]->getBoundX();
+			obY = enemies[i]->getBoundY();
 
-			attacking = false;
-			hitRecoil(screen, enemies[i]->getDirection());
-
-			/*if(enemies[i]->getLife() == 0)
+			if (x + boundX > oX - obX &&
+				x - boundX < oX + obX &&
+				y + boundY > oY - obY &&
+				y - boundY < oY + obY)
 			{
-			enemies.erase(enemies.begin() + i);
-			}*/
+				collided = true;
+				//colliding = true;
+				//std:: cout << "COLLISION ATTACK - ENEMY\n";
+				loseLife();
+
+				attacking = false;
+				hitRecoil(screen, enemies[i]->getDirection());
+
+				/*if(enemies[i]->getLife() == 0)
+				{
+				enemies.erase(enemies.begin() + i);
+				}*/
 
 
-			break;
+				break;
+			}
 		}
 	}
+
 	return collided;
 }
 
 
 void Player::checkTeleport(int dir, Screen& screen, int nextTileC1, int nextTileC2)
 {
-	if (!teleported)
+	/*if (!teleported)
 	{
-		teleported = true;
-		screen.init(screen.tiles[curTile]->getWhereTo());
+	teleported = true;
+	screen.init(screen.tiles[curTile]->getWhereTo());
 	}//icitte
-
+	*/
 	//valeur 4 de position arbitraire pour eviter le crash en changeant velX et velY.
-	/*switch (dir)
+	switch (dir)
 	{
 	case L:
-	if (x - renderbX < screen.tiles[nextTileC1]->getX() && !teleported)
-	{
-	if (screen.tiles[nextTileC1]->getWhereToTile() != -1)
-	curTile = screen.tiles[nextTileC1]->getWhereToTile();
-	else
-	curTile = screen.tiles[nextTileC2]->getWhereToTile();
+		if (x - renderbX < screen.tiles[nextTileC1]->getX())
+		{
+			if (screen.tiles[nextTileC1]->getWhereToTile() != -1)
+				curTile = screen.tiles[nextTileC1]->getWhereToTile() + 16;
+			else
+				curTile = screen.tiles[nextTileC2]->getWhereToTile();
 
-	x = screen.tiles[curTile]->getX();
-	y = screen.tiles[curTile]->getY();
+			x = screen.tiles[curTile]->getX();
+			y = screen.tiles[curTile]->getY();
 
-	screen.init(screen.tiles[nextTileC1]->getWhereTo());
-	//teleported = true;
-	//screen.init(screen.tiles[curTile]->getWhereTo());
+			screen.init(screen.tiles[nextTileC1]->getWhereTo());
+			//teleported = true;
+			//screen.init(screen.tiles[curTile]->getWhereTo());
 
-	//}
-	break;
+			//}
+			break;
 	case R:
-	if (x + renderbX >= screen.tiles[nextTileC1]->getX() && !teleported)
-	{
-	if (screen.tiles[nextTileC1]->getWhereToTile() != -1)
-	curTile = screen.tiles[nextTileC1]->getWhereToTile();
-	else
-	curTile = screen.tiles[nextTileC2]->getWhereToTile();
+		if (x + renderbX >= screen.tiles[nextTileC1]->getX())
+		{
+			if (screen.tiles[nextTileC1]->getWhereToTile() != -1)
+				curTile = screen.tiles[nextTileC1]->getWhereToTile() + 16;
+			else
+				curTile = screen.tiles[nextTileC2]->getWhereToTile();
 
-	x = screen.tiles[curTile]->getX();
-	y = screen.tiles[curTile]->getY();
+			x = screen.tiles[curTile]->getX();
+			y = screen.tiles[curTile]->getY();
 
-	screen.init(screen.tiles[nextTileC1]->getWhereTo());
-	teleported = true;
-	}
-	break;
+			screen.init(screen.tiles[nextTileC1]->getWhereTo());
+			//teleported = true;
+		}
+		break;
 	case U:
-	if (y - renderbY < screen.tiles[nextTileC1]->getY() && !teleported)
-	{
-	if (screen.tiles[nextTileC1]->getWhereToTile() != -1)
-	curTile = screen.tiles[nextTileC1]->getWhereToTile();
-	else
-	curTile = screen.tiles[nextTileC2]->getWhereToTile();
+		if (y - renderbY < screen.tiles[nextTileC1]->getY())
+		{
+			if (screen.tiles[nextTileC1]->getWhereToTile() != -1)
+				curTile = screen.tiles[nextTileC1]->getWhereToTile() + 16;
+			else
+				curTile = screen.tiles[nextTileC2]->getWhereToTile();
 
-	x = screen.tiles[curTile]->getX();
-	y = screen.tiles[curTile]->getY();
+			x = screen.tiles[curTile]->getX();
+			y = screen.tiles[curTile]->getY();
 
-	screen.init(screen.tiles[nextTileC1]->getWhereTo());
-	teleported = true;
-	}
-	break;
+			screen.init(screen.tiles[nextTileC1]->getWhereTo());
+			//teleported = true;
+		}
+		break;
 	case D:
-	if (y + renderbY >= screen.tiles[nextTileC1]->getY() && !teleported)
-	{
-	if (screen.tiles[nextTileC1]->getWhereToTile() != -1)
-	curTile = screen.tiles[nextTileC1]->getWhereToTile();
-	else
-	curTile = screen.tiles[nextTileC2]->getWhereToTile();
+		if (y + renderbY >= screen.tiles[nextTileC1]->getY())
+		{
+			if (screen.tiles[nextTileC1]->getWhereToTile() != -1)
+				curTile = screen.tiles[nextTileC1]->getWhereToTile() + 16;
+			else
+				curTile = screen.tiles[nextTileC2]->getWhereToTile();
 
-	x = screen.tiles[curTile]->getX();
-	y = screen.tiles[curTile]->getY();
+			x = screen.tiles[curTile]->getX();
+			y = screen.tiles[curTile]->getY();
 
-	screen.init(screen.tiles[nextTileC1]->getWhereTo());
-	teleported = true;
+			screen.init(screen.tiles[nextTileC1]->getWhereTo());
+			//teleported = true;
+		}
+		break;
+		}
 	}
-	break;
-	}*/
 }
 
 void Player::checkLimit(int dir, Screen& screen, int nextTileC1, int nextTileC2)
@@ -315,6 +373,45 @@ void Player::checkLimit(int dir, Screen& screen, int nextTileC1, int nextTileC2)
 void Player::moveLeft(Screen& screen)
 {
 	direction = L;
+	animationRow = 3;
+
+	frameCount++;
+
+	/*if (frameCount >= frameDelay)
+	{
+	frameCount = 0;
+	curFrame++;
+
+	if (curFrame > 1)
+	{
+	curFrame = 0;
+	}
+	}*/
+	if (frameCount >= frameDelay)
+	{
+		frameCount = 0;
+
+		if (order == 1)
+		{
+			curFrame++;
+		}
+		else if (order == -1)
+		{
+			curFrame--;
+		}
+
+		if (curFrame >= 2)
+		{
+			order = -1;
+			//curFrame = 2;
+		}
+		else if (curFrame <= 0)
+		{
+			order = 1;
+			//curFrame = 0; 
+		}
+	}
+
 
 	double tempX = x - boundX;
 	double tempC1 = y - boundY;
@@ -355,6 +452,49 @@ void Player::moveLeft(Screen& screen)
 void Player::moveRight(Screen& screen)
 {
 	direction = R;
+	animationRow = 2;
+
+	/*std::cout << "Direction: " << direction << std::endl;
+	std::cout << "Animation row: " << animationRow << std::endl;
+	std::cout << "Current frame: " << curFrame << std::endl;*/
+
+	frameCount++;
+
+	/*if (frameCount >= frameDelay)
+	{
+	frameCount = 0;
+	curFrame++;
+
+	if (curFrame > 1)
+	{
+	curFrame = 0;
+	}
+	}*/
+	if (frameCount >= frameDelay)
+	{
+		frameCount = 0;
+
+		if (order == 1)
+		{
+			curFrame++;
+		}
+		else if (order == -1)
+		{
+			curFrame--;
+		}
+
+		if (curFrame >= 2)
+		{
+			order = -1;
+			//curFrame = 2;
+		}
+		else if (curFrame <= 0)
+		{
+			order = 1;
+			//curFrame = 0; 
+		}
+	}
+
 
 	double tempX = x + boundX;
 	int nextTile = curTile;
@@ -390,6 +530,36 @@ void Player::moveRight(Screen& screen)
 void Player::moveUp(Screen& screen)
 {
 	direction = U;
+	animationRow = 1;
+
+	frameCount++;
+
+	if (frameCount >= frameDelay)
+	{
+		frameCount = 0;
+
+		if (order == 1)
+		{
+			curFrame++;
+		}
+		else if (order == -1)
+		{
+			curFrame--;
+		}
+
+		if (curFrame >= 2)
+		{
+			order = -1;
+			//curFrame = 2;
+		}
+		else if (curFrame <= 0)
+		{
+			order = 1;
+			//curFrame = 0; 
+		}
+
+
+	}
 
 	double tempY = y - boundY;
 	int nextTile = curTile;
@@ -423,6 +593,39 @@ void Player::moveUp(Screen& screen)
 void Player::moveDown(Screen& screen)
 {
 	direction = D;
+	animationRow = 0;
+
+	//	std::cout << "Direction: " << direction << std::endl;
+	//std::cout << "Animation row: " << animationRow << std::endl;
+	//std::cout << "Current frame: " << curFrame << std::endl;
+
+	frameCount++;
+
+	if (frameCount >= frameDelay)
+	{
+		frameCount = 0;
+
+		if (order == 1)
+		{
+			curFrame++;
+		}
+		else if (order == -1)
+		{
+			curFrame--;
+		}
+
+		if (curFrame >= 2)
+		{
+			order = -1;
+			//curFrame = 2;
+		}
+		else if (curFrame <= 0)
+		{
+			order = 1;
+			//curFrame = 0; 
+		}
+	}
+
 
 	double tempY = y + boundY;
 	int nextTile = curTile;

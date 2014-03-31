@@ -22,7 +22,7 @@ Bomb::Bomb(Player& player)
 
 Bomb::~Bomb()
 {
-	delete image;
+	al_destroy_bitmap(image);
 }
 
 void Bomb::tick()
