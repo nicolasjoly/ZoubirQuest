@@ -37,10 +37,10 @@ Tile::Tile(int posX, int posY, int type, int whereTo, int whereToTile, int id, A
 	}
 
 	//Teleport (a traiter)
-	Tile::isTeleport = 0;
+	//Tile::isTeleport = 0;
 
 	//Obstacle
-	if (type == 1)
+	if (type == 1 || type == 4 || type == 5)
 		isObstacle = true;
 
 	Tile::image = image;
@@ -59,7 +59,12 @@ isObstacle = true;
 
 void Tile::render()
 {
-	al_draw_bitmap(image, x - boundX, y - boundY, 0);
+	if (type == 2)
+	{
+		al_draw_filled_rectangle(x - boundX, y - boundY, x + boundX, y + boundY, al_map_rgb(0, 0, 0));
+	}
+	else
+		al_draw_bitmap(image, x - boundX, y - boundY, 0);
 	//switch(type)
 	//{
 	//case TILE_TREE:

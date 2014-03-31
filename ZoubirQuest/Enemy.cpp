@@ -20,7 +20,7 @@ Enemy::Enemy(double x, double y)
 	renderbY = TILESIZE / 3; //render box
 	direction = D;
 	velocity = 2.0;
-	life = 4;
+	life = 20;
 	curTile = (x / (TILESIZE)) + (((int)(y / (TILESIZE))) * NBTILESWIDTH);
 
 	moveCounter = 0;

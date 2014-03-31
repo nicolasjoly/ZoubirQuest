@@ -44,8 +44,7 @@ Arrow::Arrow(Player &player)
 
 Arrow::~Arrow()
 {
-
-
+	al_destroy_bitmap(image);
 }
 
 void Arrow::move()

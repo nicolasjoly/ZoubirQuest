@@ -22,6 +22,8 @@ private:
 	double renderbY; //render box
 	double velocity; //speed
 	int direction;
+	bool isInvincible;
+	int invincibilityCounter;
 	Attack* attackInstance;
 	bool attacking;
 	int attackCounter;
@@ -32,6 +34,21 @@ private:
 
 	//Attributes
 	int life;
+
+
+	//Animation
+	int maxFrame;
+	int curFrame;
+	int frameCount;
+	int frameDelay;
+	int frameWidth;
+	int frameHeight;
+	int animationColumns;
+	int animationRow;
+	int animationDirection;
+	ALLEGRO_BITMAP* image;
+
+	int order;
 
 
 	/*************************
@@ -64,6 +81,7 @@ public:
 	bool checkCollision(std::vector<Enemy*>& enemies, Screen& screen);
 	void loseLife(){ life--; }
 	void hitRecoil(Screen& screen, int directionRecoil);
+	void resetPlayer();
 	//void resetMove();
 
 	//Getters
@@ -88,6 +106,8 @@ public:
 	void setBoundX(double boundX){ Player::boundX = boundX; }
 	void setBoundY(double boundY){ Player::boundY = boundY; }
 	void setVelocity(double velX){ Player::velocity = velocity; }
+	void setDirection(int direction){ Player::direction = direction; }
+	void resetInvincibility(){ isInvincible = false; }
 	//void setDirX(int dirX){Player::dirX = dirX;}
 	//void setDirY(int dirY){Player::dirY = dirY;}
 	void setLife(int life){ Player::life = life; }

@@ -12,7 +12,9 @@ class ImageLoader
 public:
 	ALLEGRO_BITMAP *tree_tile;
 	ALLEGRO_BITMAP *ground_tile;
-	ALLEGRO_BITMAP *bomb;
+	ALLEGRO_BITMAP *dungeon_ground_tile;
+	ALLEGRO_BITMAP *dungeon_brick;
+	ALLEGRO_BITMAP *dungeon_trap;
 	ImageLoader();
 	~ImageLoader();
 	ALLEGRO_BITMAP* loadImage(int type);
