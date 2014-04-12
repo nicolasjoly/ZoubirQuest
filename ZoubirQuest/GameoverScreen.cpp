@@ -1,8 +1,6 @@
 #include "GameoverScreen.h"
 #include <allegro5\allegro5.h>
 
-
-
 GameoverScreen::GameoverScreen()
 {
 	font = al_load_font("font/arial.ttf", 16, 0);

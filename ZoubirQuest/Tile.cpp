@@ -14,7 +14,7 @@ Tile::Tile(int posX, int posY, int type, int whereTo, int whereToTile, int id, A
 	Tile::whereTo = whereTo;
 	Tile::whereToTile = whereToTile;
 
-	//Limites
+	//Set limits depending on the tile position on the screen
 	if (id % 16 == 0)
 	{
 		limit = LIMIT_L;
@@ -36,52 +36,20 @@ Tile::Tile(int posX, int posY, int type, int whereTo, int whereToTile, int id, A
 		isLimit = true;
 	}
 
-	//Teleport (a traiter)
-	//Tile::isTeleport = 0;
-
-	//Obstacle
-	if (type == 1 || type == 4 || type == 5)
+	//Set tiles that are obstacles
+	if (type == TILE_TREE || type == TILE_DUNGEON_ROCK || type == TILE_DUNGEON_TRAP)
 		isObstacle = true;
 
 	Tile::image = image;
 }
 
 Tile::~Tile()
-{
-
-}
-
-/*void Tile::init(double x, double y, int type)
-{
-if(type == obstacle)
-isObstacle = true;
-}*/
+{}
 
 void Tile::render()
 {
-	if (type == 2)
-	{
+	if (type == TILE_TELEPORT)
 		al_draw_filled_rectangle(x - boundX, y - boundY, x + boundX, y + boundY, al_map_rgb(0, 0, 0));
-	}
 	else
 		al_draw_bitmap(image, x - boundX, y - boundY, 0);
-	//switch(type)
-	//{
-	//case TILE_TREE:
-	//al_draw_filled_rectangle(x - boundX, y - boundY, x + boundX, y + boundY, al_map_rgb(139,69,50));
-	//al_draw_bitmap(image, x - boundX, y - boundY, 0);
-	//al_draw_rectangle(x - boundX, y - boundY, x + boundX, y + boundY, al_map_rgb(139,69,19),2);
-	//break;
-	//case TILE_GROUND:
-	//al_draw_filled_rectangle(x - boundX, y - boundY, x + boundX, y + boundY, al_map_rgb(130,116,48));
-	//al_draw_rectangle(x - boundX, y - boundY, x + boundX, y + boundY, al_map_rgb(130,116,48),1);
-	//break;
-	/*case WATER:
-	al_draw_filled_rectangle(x - boundX, y - boundY, x + boundX, y + boundY, al_map_rgb(0, 0, 205));
-	break;
-	case LIMIT:
-	al_draw_filled_rectangle(x - boundX, y - boundY, x + boundX, y + boundY, al_map_rgb(130, 116, 48));*/
-	//al_draw_filled_rectangle(x - boundX, y - boundY, x + boundX, y + boundY, al_map_rgb(255, 0, 205));
-	//break;
-	//}
 }

@@ -4,29 +4,52 @@
 #include <vector>
 #include <allegro5\allegro_primitives.h>
 
-//Forward declarations
 class Player;
 class Screen;
 class Enemy;
 
+/************************************************
+* Class representing an instance of a sword attack
+*************************************************/
 class Attack
 {
+	/*********************************
+	* ATTRIBUTES
+	**********************************/
 private:
-	//Attributes
+	//X position
 	double x;
+
+	//Y position
 	double y;
+
+	//Size of half the boundary box on the X axis
 	double boundX;
+
+	//Size of half the boundary box on the Y axis
 	double boundY;
+
+	//Current direction of the attack
 	int direction;
-	bool colliding; //NA
+
+	//Strength of the attack
 	int strength;
+
+	//Image for the attack (sword)
 	ALLEGRO_BITMAP *image = NULL;
 
+
+	/*********************************
+	* METHODS
+	**********************************/
 public:
-	//Methods
 	Attack(int strength, Player& player);
 	~Attack();
+
+	//Rendering method
 	void render(Player& player);
+
+	//Checks if a collision occurs between an enemy and an attack
 	bool checkCollision(std::vector<Enemy*>& enemies, Screen& screen);
 
 	//Getters
@@ -36,7 +59,6 @@ public:
 	double getBoundY(){ return boundY; }
 	int getStrength(){ return strength; }
 	int getDirection(){ return direction; }
-	bool getColliding(){ return colliding; }
 };
 
 #endif

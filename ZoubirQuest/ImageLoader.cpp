@@ -11,9 +11,7 @@ ImageLoader::ImageLoader()
 }
 
 ImageLoader::~ImageLoader()
-{
-
-}
+{}
 
 ALLEGRO_BITMAP* ImageLoader::loadImage(int type)
 {
