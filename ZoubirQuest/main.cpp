@@ -6,7 +6,6 @@
 #include <ctime>
 #include <iostream>
 #include <vector>
-
 #include "Globals.h"
 #include "Player.h"
 #include "Tile.h"
@@ -20,16 +19,15 @@
 #include "Arrow.h"
 #include "EnemySpawner.h"
 #include "TitleScreen.h"
+#include "EnemyTrap.h"
 #include "GameoverScreen.h"
 
 bool keys[] = { false, false, false, false, false, false, false, false };
 
 int main(void)
 {
-	std::cout << "DEBUG CONSOLE\n------------------------------------------------------ \n";
-
 	/***********************************************
-	* Create and initialize Allegro variables/addons
+	* Create and initialize library variables/addons
 	************************************************/
 	ALLEGRO_DISPLAY *display = NULL;
 	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
@@ -54,10 +52,16 @@ int main(void)
 	/*****************************************
 	* Create and initialize project variables
 	******************************************/
+	//Game loop variable
 	bool done = false;
+
+	//Used to let the loop know whether to render an entity or not
 	bool render = false;
+
+	//Current state of the game. Possible choices: TITLE, PLAYING, GAMEOVER, MENU
 	int state = TITLE;
-	int counterMov = 0;
+
+	//Currently selected item by the player
 	int itemSelected = BOMB;
 
 	Player* player1 = new Player();
@@ -68,9 +72,11 @@ int main(void)
 	GameoverScreen* gameoverScreen = new GameoverScreen();
 	std::vector<Bomb*> bombs;
 	std::vector<Arrow*> arrows;
+	std::vector<Arrow*> arrowsEnemy;
+
 
 	/**************************************
-	* Start timer and initialize event queue
+	* Start game timer
 	***************************************/
 	event_queue = al_create_event_queue();
 	timer = al_create_timer(1.0 / FPS);
@@ -82,7 +88,7 @@ int main(void)
 
 
 	/**************************************
-	* Game loop
+	* Game loop starts here
 	***************************************/
 	while (!done)
 	{
@@ -91,42 +97,42 @@ int main(void)
 
 
 		/****************************************************************
-		* STATE = TITLE SCREEN
+		* When state = TITLESCREEN
 		*****************************************************************/
 		if (state == TITLE)
 		{
-
 			/*******************
-			* INPUT EVENT
+			* Input events section
 			********************/
 			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
 				switch (ev.keyboard.keycode)
 				{
+					//If the ENTER key is pressed, start a new game.
 				case ALLEGRO_KEY_ENTER:
 
-					//Initialiser nouvelle partie
+					//Initialize a new game
 					player1->resetPlayer();
-					counterMov = 0;
 					bombs.clear();
 					arrows.clear();
-					screen->init(101);
+					screen->init(0);
 
-					for (int i = 0; i < 8; i++) //8 = nb touches
+					for (int i = 0; i < 8; i++)
 						keys[i] = 0;
 
 					state = PLAYING;
+
 					break;
+
+					//If the ESCAPE key is pressed, end the loop and quit the game.
 				case ALLEGRO_KEY_ESCAPE:
 					done = true;
 					break;
 				}
-
-
 			}
 
 			/*******************
-			* TIMER EVENT
+			* Timer events section
 			********************/
 			else if (ev.type == ALLEGRO_EVENT_TIMER)
 			{
@@ -135,7 +141,7 @@ int main(void)
 			}
 
 			/*******************
-			* RENDERING
+			* Rendering section
 			********************/
 			if (render && al_is_event_queue_empty(event_queue))
 			{
@@ -147,21 +153,19 @@ int main(void)
 		}
 
 
-
 		/****************************************************************
-		* STATE = GAME OVER SCREEN
+		* When state = GAMEOVER
 		*****************************************************************/
 		else if (state == GAMEOVER)
 		{
-			//gameoverScreen = new GameoverScreen();
-
 			/*******************
-			* INPUT EVENT
+			* Input events section
 			********************/
 			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
 				switch (ev.keyboard.keycode)
 				{
+					//If the ENTER key is pressed, go back to the title screen.
 				case ALLEGRO_KEY_ENTER:
 					state = TITLE;
 					break;
@@ -169,7 +173,7 @@ int main(void)
 			}
 
 			/*******************
-			* TIMER EVENT
+			* Timer events section
 			********************/
 			else if (ev.type == ALLEGRO_EVENT_TIMER)
 			{
@@ -177,7 +181,7 @@ int main(void)
 			}
 
 			/*******************
-			* RENDERING
+			* Rendering section
 			********************/
 			if (render && al_is_event_queue_empty(event_queue))
 			{
@@ -189,19 +193,17 @@ int main(void)
 		}
 
 
-
-
-
 		/****************************************************************
-		* STATE = PLAYING
+		* When state = PLAYING
 		*****************************************************************/
 		else if (state == PLAYING)
 		{
 			/*******************
-			* INPUT EVENT
+			* Input events section
 			********************/
 			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
+				//Button presses for movement and player input
 				switch (ev.keyboard.keycode)
 				{
 				case ALLEGRO_KEY_ESCAPE:
@@ -233,6 +235,8 @@ int main(void)
 					break;
 				}
 			}
+
+			//Button releases for player input
 			else if (ev.type == ALLEGRO_EVENT_KEY_UP)
 			{
 				switch (ev.keyboard.keycode)
@@ -262,78 +266,92 @@ int main(void)
 			}
 
 			/*******************
-			* TIMER EVENT
+			* Timer event section
 			********************/
 			else if (ev.type == ALLEGRO_EVENT_TIMER)
 			{
 				render = true;
+
+				//Bomb management
 				for (int i = 0; i < bombs.size(); i++)
 				{
-					//Explosion est finie
+					//If the bomb has exploded and the explosion is over, kill it.
 					if (bombs[i]->isDone)
 						bombs.erase(bombs.begin() + i);
-					//En mode tick
+
+					//If the bomb hasn't exploded yet, increment its tick counter.
 					else if (!bombs[i]->hasExploded)
 						bombs[i]->tick();
-					//En cours d'explosion
+
+					//If the bomb is currently exploding
 					else if (bombs[i]->hasExploded && !bombs[i]->isDone)
 					{
+						//Check for collisions with enemies
 						if (bombs[i]->explosionCounter == 0)
-						{
 							bombs[i]->checkCollision(*screen, screen->getEnemies());
-						}
+
+						//Increment its blast counter
 						bombs[i]->explodeDamage();
 					}
 				}
 
-				for (int i = 0; i < arrows.size(); i++)
+				//Trap enemies management
+				for (int i = 0; i < screen->getEnemies().size(); i++)
 				{
-					arrows[i]->move();
-				}
-
-				//Automatic direction change for enemies
-				for (int i = 0; i < (int)(screen->getEnemies().size()); i++)
-				{
-					if (screen->getEnemies()[i]->getMoveCounter() == 120)
+					if (screen->getEnemies()[i]->getType() == TRAPENEMY)
 					{
-						screen->getEnemies()[i]->resetMoveCounter();
-						screen->getEnemies()[i]->setDirection(rand() % 4);
+						//If the enemy need to shoot an arrow, shoot it. Otherwise, increment its arrow counter.
+						static_cast<EnemyTrap*>(screen->getEnemies()[i])->counterMissile();
+
+						if (static_cast<EnemyTrap*>(screen->getEnemies()[i])->shootTime)
+						{
+							arrowsEnemy.insert(arrowsEnemy.end(), new Arrow(*(screen->getEnemies()[i])));
+							static_cast<EnemyTrap*>(screen->getEnemies()[i])->shootTime = false;
+						}
 					}
 				}
 
-				//Attacking
+				//Arrow movement management
+				for (int i = 0; i < arrows.size(); i++)
+					arrows[i]->move();
+
+				//Enemy arrow movement management
+				for (int i = 0; i < arrowsEnemy.size(); i++)
+					arrowsEnemy[i]->move();
+
+				//Player sword attack management
 				if (keys[Z])
 				{
 					player1->attack(screen->getEnemies(), *screen);
 					keys[Z] = false;
 				}
 
+				//Menu spawning management
 				if (keys[ENTER])
 				{
 					state = MENU;
 					keys[ENTER] = false;
 				}
 
+				//Bomb spawning management
 				if (keys[X] && itemSelected == BOMB)
 				{
 					if (bombs.size() < 3)
-					{
 						bombs.insert(bombs.end(), new Bomb(*player1));
-					}
 
 					keys[X] = false;
 				}
 
+				//Arrow spawning management
 				else if (keys[X] && itemSelected == ARROW)
 				{
 					if (arrows.size() == 0)
-					{
 						arrows.insert(arrows.end(), new Arrow(*player1));
-					}
+
 					keys[X] = false;
 				}
 
-				//Move player
+				//Player movement management
 				else if (keys[UP] && player1->isAttacking() == false)
 					player1->moveUp(*screen);
 				else if (keys[DOWN] && player1->isAttacking() == false)
@@ -343,44 +361,52 @@ int main(void)
 				else if (keys[RIGHT] && player1->isAttacking() == false)
 					player1->moveRight(*screen);
 
+				//Player collision with enemy management
 				player1->checkCollision(screen->getEnemies(), *screen);
 
-				//Move enemies
+				//Enemy movement management
 				for (int i = 0; i < (int)(screen->getEnemies().size()); i++)
 				{
 					screen->getEnemies()[i]->move(*screen, *player1);
-					//enemies[i]->addMoveCounter();
 				}
 
-				player1->update(); //marche. P-e a mettre en haut. Will see.
+				//Increment player counters
+				player1->update();
+
+				//If the player has no more lives, kill him.
 				if (player1->getLife() <= 0)
-				{
 					state = GAMEOVER;
-				}
 
+				//Arrow collision management
 				for (int i = 0; i < arrows.size(); i++)
 				{
 					if (arrows[i]->checkCollision(*screen, screen->getEnemies()))
-					{
 						arrows[i]->isAlive = false;
-					}
 
 					else
-					{
 						arrows[i]->checkKill();
-					}
-
 
 					if (arrows[i]->isAlive == false)
-					{
-						std::cout << "soppe";
 						arrows.clear();
-					}
+				}
+
+				//Enemy arrow collision management
+				for (int i = 0; i < arrowsEnemy.size(); i++)
+				{
+					if (arrowsEnemy[i]->checkCollision(*screen, *player1))
+						arrowsEnemy[i]->isAlive = false;
+
+					else
+						arrowsEnemy[i]->checkKill();
+
+					if (arrowsEnemy[i]->isAlive == false)
+						arrowsEnemy.erase(arrowsEnemy.begin() + i);
+
 				}
 			}
 
 			/*******************
-			* RENDERING
+			* Rendering section
 			********************/
 			if (render && al_is_event_queue_empty(event_queue))
 			{
@@ -389,30 +415,24 @@ int main(void)
 				//Render screen
 				screen->render();
 
-				//std::cout << state;
-
-				//Render player
-				player1->render();
-
 				//Render bombs
 				for (int i = 0; i < bombs.size(); i++)
-				{
 					bombs[i]->render();
-				}
 
 				//Render arrow
 				for (int i = 0; i < arrows.size(); i++)
-				{
 					arrows[i]->render();
-				}
+
+				//Render enemy arrows
+				for (int i = 0; i < arrowsEnemy.size(); i++)
+					arrowsEnemy[i]->render();
 
 				//Render enemies
 				for (int i = 0; i < (int)(screen->getEnemies().size()); i++)
 					screen->getEnemies()[i]->render();
 
-				//Render attack if there is one
-				/*if(counterAttack <= 20 && player1->getAttacking() == true)
-				attack->render(*player1);*/
+				//Render player
+				player1->render();
 
 				//Render UI
 				ui->render(player1, screen, font);
@@ -423,16 +443,13 @@ int main(void)
 		}
 
 
-
-
-
 		/****************************************************************
-		* STATE = MENU SCREEN
+		* When state = MENU
 		*****************************************************************/
 		else if (state == MENU)
 		{
 			/*******************
-			* INPUT EVENT
+			* Input events section
 			********************/
 			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
@@ -454,27 +471,31 @@ int main(void)
 			}
 
 			/*******************
-			* TIMER EVENT
+			* Timer events section
 			********************/
 			else if (ev.type == ALLEGRO_EVENT_TIMER)
 			{
 				render = true;
 
+				//Manage the positiion of the cursor depending on which key is pressed.
 				if (keys[LEFT])
 				{
 					menu->cursorPos = 0;
 					keys[LEFT] = false;
 				}
+
 				else if (keys[RIGHT])
 				{
 					menu->cursorPos = 1;
 					keys[RIGHT] = false;
 				}
+
 				else if (keys[DOWN])
 				{
 					menu->cursorPos = 2;
 					keys[DOWN] = false;
 				}
+
 				else if (keys[ENTER])
 				{
 					if (menu->cursorPos == 2)
@@ -490,6 +511,7 @@ int main(void)
 					itemSelected = BOMB;
 					ui->item = BOMB;
 				}
+
 				else if (menu->cursorPos == 1)
 				{
 					itemSelected = ARROW;
@@ -498,7 +520,7 @@ int main(void)
 			}
 
 			/*******************
-			* RENDERING
+			* Rendering section
 			********************/
 			if (render && al_is_event_queue_empty(event_queue))
 			{
@@ -510,18 +532,26 @@ int main(void)
 				al_clear_to_color(al_map_rgb(0, 0, 0));
 			}
 		}
+	}
 
-	} //end of game loop
 
 	/**************************************
-	* Variables destruction
+	* Variable destruction
 	**************************************/
 	al_destroy_display(display);
 	al_destroy_event_queue(event_queue);
 	al_destroy_timer(timer);
 	al_destroy_font(font);
+
 	delete titleScreen;
 	delete gameoverScreen;
+	delete player1;
+	delete menu;
+	delete ui;
+	delete screen;
+	bombs.clear();
+	arrows.clear();
+	arrowsEnemy.clear();
 
 	return 0;
 }

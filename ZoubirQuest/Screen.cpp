@@ -1,9 +1,7 @@
 #include "Screen.h"
-
 #include "Globals.h"
 #include "Tile.h"
 #include "Globals.h"
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -64,23 +62,20 @@ void Screen::init(int id)
 			levelDB >> tempWhere;
 			levelDB >> tempWhereTile;
 
-
-
 			//Insert each tile in the tiles vector
 			tiles.insert(tiles.end(), new Tile(i, j, tempType, tempWhere, tempWhereTile, nbTiles, imageLoader->loadImage(tempType)));
 			nbTiles++;
 
+			//If the tile is a teleport, set it as one.
 			if (tempType == 2)
-			{
 				tiles[nbTiles - 1]->setTeleport();
-			}
-
 
 		}
 	}
 
 	levelDB.close();
 
+	//Spawn the enemies
 	enemySpawner->initScreen(Screen::id);
 
 }

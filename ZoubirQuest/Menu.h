@@ -6,13 +6,19 @@
 #include <allegro5\allegro_font.h>
 #include <allegro5\allegro_ttf.h>
 
+/************************************************
+* Class representing an in-game menu
+*************************************************/
 class Menu
 {
+	/*********************************
+	* ATTRIBUTES
+	**********************************/
 public:
-	//ALLEGRO_FONT* font;
-	Menu();
-	~Menu();
+	//Cursor position in the menu
 	int cursorPos;
+
+	//Images
 	ALLEGRO_BITMAP *menuBackground = NULL;
 	ALLEGRO_BITMAP *menuSword = NULL;
 	ALLEGRO_BITMAP *menuArrow = NULL;
@@ -22,7 +28,15 @@ public:
 	ALLEGRO_BITMAP *cursorSQGraphic = NULL;
 	ALLEGRO_BITMAP *sqGraphic = NULL;
 	ALLEGRO_BITMAP *menuItemText = NULL;
-	void executeAction();
+
+
+	/*********************************
+	* METHODS
+	**********************************/
+	Menu();
+	~Menu();
+
+	//Rendering method
 	void render();
 };
 

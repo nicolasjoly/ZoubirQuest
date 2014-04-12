@@ -4,27 +4,62 @@
 #include "Globals.h"
 #include <allegro5\allegro_primitives.h>
 
+/************************************************
+* Class representing a tile
+*************************************************/
 class Tile
 {
-protected:
+	/************************************************
+	* ATTRIBUTES
+	*************************************************/
+public:
+	//X position
 	int x;
+
+	//Y position
 	int y;
-	int boundX; //hitbox same as renderbox
-	int boundY; //hitbox same as renderbox
+
+	//Size of half the boundary box on the X axis
+	int boundX;
+
+	//Size of half the boundary box on the Y axis
+	int boundY;
+
+	//Type of the tile
 	int type;
+
+	//ID of the tile on the screen
 	int id;
+
+	//If the tile is a limit, to which screen it leads
 	int whereTo;
+
+	//If the tile is a limit/teleport, to which tile it leads on the other screen
 	int whereToTile;
+
+	//If the tile is a limit or not
 	int isLimit;
+
+	//If the tile is a limit, what kind of limit it is
 	int limit;
+
+	//If the tile is a teleport or not
 	int isTeleport;
+
+	//If the tile is an obstacle or not
 	bool isObstacle;
+
+	//Image of the tile
 	ALLEGRO_BITMAP *image = NULL;
 
-public:
+
+	/************************************************
+	* METHODS
+	*************************************************/
 	Tile(int posX, int posY, int type, int whereTo, int whereToTile, int id, ALLEGRO_BITMAP *image);
 	~Tile();
-	void init(double x, double y, int type);
+
+	//Rendering method
 	void render();
 
 	//Setters

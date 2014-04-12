@@ -1,5 +1,3 @@
-
-
 #ifndef UI_H
 #define UI_H
 
@@ -9,16 +7,19 @@
 #include "Globals.h"
 #include "Player.h"
 
+/************************************************
+* Class representing the user interface
+*************************************************/
 class UI
 {
+	/*********************************
+	* ATTRIBUTES
+	**********************************/
 public:
-	//ALLEGRO_FONT* font;
-	UI();
-	~UI();
-	void render(Player* player, Screen* screen, ALLEGRO_FONT* font);
+	//Currently selected item
 	int item;
 
-private:
+	//Images
 	ALLEGRO_BITMAP *itemBackgroundZ = NULL;
 	ALLEGRO_BITMAP *itemBackgroundX = NULL;
 	ALLEGRO_BITMAP *itemBomb = NULL;
@@ -26,10 +27,15 @@ private:
 	ALLEGRO_BITMAP *itemArrow = NULL;
 	ALLEGRO_BITMAP *lifeCircle = NULL;
 	ALLEGRO_BITMAP *lifeText = NULL;
+	ALLEGRO_BITMAP *mapOver = NULL;
+	ALLEGRO_BITMAP *mapDun1 = NULL;
 
-	int map; //type a changer
-	int life;
-	int keys;
+	/*********************************
+	* METHODS
+	**********************************/
+	UI();
+	~UI();
+	void render(Player* player, Screen* screen, ALLEGRO_FONT* font);
 };
 
 #endif

@@ -13,76 +13,122 @@ class Enemy;
 class Player
 {
 private:
-	//Position & moving
+	//X position
 	double x;
+
+	//Y position
 	double y;
-	double boundX; //hitbox
-	double boundY; //hitbox
-	double renderbX; //render box
-	double renderbY; //render box
-	double velocity; //speed
+
+	//Size of half the boundary box on the X axis
+	double boundX;
+
+	//Size of half the boundary box on the Y axis
+	double boundY;
+
+	//Size of half the rendering box on the X axis
+	double renderbX;
+
+	//Size of half the rendering box on the Y axis
+	double renderbY;
+
+	//Velocity (speed) of the player
+	double velocity;
+
+	//Current direction of the player
 	int direction;
+
+	//If the player is currently invincible or not
 	bool isInvincible;
+
+	//Invicibility counter
 	int invincibilityCounter;
+
+	//An attack instance coming from the player
 	Attack* attackInstance;
+
+	//If the player is attacking or not
 	bool attacking;
+
+	//Attack counter
 	int attackCounter;
 
+	//Current tile ID of the tile the player is standing on
 	int curTile;
 
+	//Image of the player
+	ALLEGRO_BITMAP* image;
 
-
-	//Attributes
+	//Current life of the player
 	int life;
 
 
-	//Animation
-	int maxFrame;
-	int curFrame;
-	int frameCount;
+	/*******
+	* Animation variables
+	********/
+
+	//The current frame
+	int currentFrame;
+
+	//Counter used to determine when to change frame
+	int frameCounter;
+
+	//Delay before changing a frame
 	int frameDelay;
+
+	//Width of a sprite
 	int frameWidth;
+
+	//Height of a sprite
 	int frameHeight;
+
+	//Number of columns on the spritesheet
 	int animationColumns;
+
+	//Number of rows on the spritesheet
 	int animationRow;
-	int animationDirection;
-	ALLEGRO_BITMAP* image;
 
-	int order;
+	//Direction of the animation
+	int animationOrder;
 
-
-	/*************************
-	* FUTURE FEATURES
-	**************************/
-	/*
-	int dirX;
-	int dirY;
-	int magicLevel;
-	std::vector<int> inventory; //change type to item
-	int currentItem; //change type to item
-	int weaponPower;
-	int armorPower;
-	*/
+	//If the player has been teleported
+	bool teleported;
 
 public:
 	Player();
 	~Player();
 
-	bool teleported;
+	//Rendering method
 	void render();
+
+	//Updates the counters of the player
 	void update();
+
+	//Launch an attack by the player
 	void attack(std::vector<Enemy*>& enemies, Screen& screen);
+
+	//Movement methods
 	void moveLeft(Screen& screen);
 	void moveRight(Screen& screen);
 	void moveUp(Screen& screen);
 	void moveDown(Screen& screen);
+
+	//Check if the player is heading toward a limit
 	void checkLimit(int dir, Screen& screen, int nextTileC1, int nextTileC2);
+
+	//Check if the player is heading toward a teleport
 	void checkTeleport(int dir, Screen& screen, int nextTileC1, int nextTileC2);
+
+	//Check if the player is colliding with an enemy
 	bool checkCollision(std::vector<Enemy*>& enemies, Screen& screen);
+
+	//Remove a life from the player
 	void loseLife(){ life--; }
+
+	//Used to push the player in a direction when hit
 	void hitRecoil(Screen& screen, int directionRecoil);
+
+	//Reset the player variables and position
 	void resetPlayer();
-	//void resetMove();
 
 	//Getters
 	double getX(){ return x; }
@@ -94,9 +140,6 @@ public:
 	double getVelocity(){ return velocity; }
 	int getDirection(){ return direction; }
 	int getLife(){ return life; }
-	//int getMagicLevel(){return magicLevel;}
-	//int getWeaponPower(){return weaponPower;}
-	//int getArmorPower(){return armorPower;}
 	int getCurTile(){ return curTile; }
 	bool isAttacking(){ return attacking; }
 
@@ -108,12 +151,7 @@ public:
 	void setVelocity(double velX){ Player::velocity = velocity; }
 	void setDirection(int direction){ Player::direction = direction; }
 	void resetInvincibility(){ isInvincible = false; }
-	//void setDirX(int dirX){Player::dirX = dirX;}
-	//void setDirY(int dirY){Player::dirY = dirY;}
 	void setLife(int life){ Player::life = life; }
-	//void setMagicLevel(int magicLevel){Player::magicLevel = magicLevel;}
-	//void setWeaponPower(int weaponPower){Player::weaponPower = weaponPower;}
-	//void setArmorPower(int armorPower){Player::armorPower = armorPower;}
 	void setAttacking(bool state){ Player::attacking = state; }
 };
 

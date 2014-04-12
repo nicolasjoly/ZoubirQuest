@@ -1,42 +1,42 @@
 #include "Enemy.h"
-
 #include "Tile.h"
 #include "Attack.h"
 #include "Screen.h"
 #include "Globals.h"
 #include "Player.h"
 #include <allegro5\allegro_primitives.h>
-
 #include <iostream>
-
 
 Enemy::Enemy(double x, double y)
 {
 	Enemy::x = x;
 	Enemy::y = y;
-	boundX = TILESIZE / 4; //hitbox
-	renderbX = TILESIZE / 3; //render box
-	boundY = TILESIZE / 4; //hitbox
-	renderbY = TILESIZE / 3; //render box
+	boundX = TILESIZE / 4;
+	renderbX = TILESIZE / 3;
+	boundY = TILESIZE / 4;
+	renderbY = TILESIZE / 3;
 	direction = D;
 	velocity = 2.0;
-	life = 20;
+	life = 5;
 	curTile = (x / (TILESIZE)) + (((int)(y / (TILESIZE))) * NBTILESWIDTH);
+	type = NORMALENEMY;
+	image = al_load_bitmap("images/dark_zoubir_spritesheet_final.png");
 
-	moveCounter = 0;
+	currentFrame = 1;
+	frameCounter = 0;
+	frameDelay = 6;
+	frameWidth = 64;
+	frameHeight = 64;
+	animationColumns = 3;
+	animationRow = 0;
+	animationOrder = 1;
 }
 
 Enemy::~Enemy()
 {}
 
-
-
-
 void Enemy::checkLimit(int dir, Screen& screen, int nextTileC1, int nextTileC2)
 {
-	//valeur 4 de position arbitraire pour eviter le crash en changeant velX et velY.
-
-	//what happens if enemy enters limit?
 	switch (dir)
 	{
 	case L:
@@ -49,10 +49,10 @@ void Enemy::checkLimit(int dir, Screen& screen, int nextTileC1, int nextTileC2)
 
 			x = screen.tiles[curTile]->getX();
 			y = screen.tiles[curTile]->getY();
-
-			//screen.init(screen.tiles[nextTileC1]->getWhereTo());
 		}
+
 		break;
+
 	case R:
 		if (x + renderbX >= WIDTH - 4)
 		{
@@ -63,10 +63,10 @@ void Enemy::checkLimit(int dir, Screen& screen, int nextTileC1, int nextTileC2)
 
 			x = screen.tiles[curTile]->getX();
 			y = screen.tiles[curTile]->getY();
-
-			//screen.init(screen.tiles[nextTileC1]->getWhereTo());
 		}
+
 		break;
+
 	case U:
 		if (y - renderbY <= 4)
 		{
@@ -77,10 +77,10 @@ void Enemy::checkLimit(int dir, Screen& screen, int nextTileC1, int nextTileC2)
 
 			x = screen.tiles[curTile]->getX();
 			y = screen.tiles[curTile]->getY();
-
-			//screen.init(screen.tiles[nextTileC1]->getWhereTo());
 		}
+
 		break;
+
 	case D:
 		if (y + renderbY >= (NBTILESHEIGHT * TILESIZE - 4))
 		{
@@ -91,16 +91,14 @@ void Enemy::checkLimit(int dir, Screen& screen, int nextTileC1, int nextTileC2)
 
 			x = screen.tiles[curTile]->getX();
 			y = screen.tiles[curTile]->getY();
-
-			//screen.init(screen.tiles[nextTileC1]->getWhereTo());
 		}
+
 		break;
 	}
 }
+
 void Enemy::move(Screen& screen, Player &player)
 {
-
-	//enemy can change screen lol
 	int nextTileC1;
 	int nextTileC2;
 	double tempX;
@@ -114,12 +112,36 @@ void Enemy::move(Screen& screen, Player &player)
 	switch (direction)
 	{
 	case U:
+		//Animation section
+		animationRow = 1;
+
+		frameCounter++;
+
+		if (frameCounter >= frameDelay)
+		{
+			frameCounter = 0;
+
+			if (animationOrder == 1)
+				currentFrame++;
+
+			else if (animationOrder == -1)
+				currentFrame--;
+
+			if (currentFrame >= 2)
+				animationOrder = -1;
+
+			else if (currentFrame <= 0)
+				animationOrder = 1;
+		}
+
+		//Next-tile checking section
 		tempY = y - boundY;
 		nextTile = curTile;
 
 		tempY -= velocity;
 		nextTile = (x / (TILESIZE)) + (((int)(tempY / (TILESIZE))) * NBTILESWIDTH);
 
+		//nextTileC1 and nextTileC2 are used to check if the enemy collide with any of the next tiles on its way
 		nextTileC1 = ((x - boundX) / (TILESIZE)) + (((int)((tempY) / (TILESIZE))) * NBTILESWIDTH);
 		nextTileC2 = ((x + boundX) / (TILESIZE)) + (((int)((tempY) / (TILESIZE))) * NBTILESWIDTH);
 
@@ -133,23 +155,47 @@ void Enemy::move(Screen& screen, Player &player)
 				y -= velocity;
 				curTile = nextTile;
 			}
+
 			else
-			{
 				direction = D;
-				std::cout << direction;
-			}
 		}
+
 		else
 			y -= velocity;
+
 		break;
 
 	case D:
+		//Animation section
+		animationRow = 0;
+
+		frameCounter++;
+
+		if (frameCounter >= frameDelay)
+		{
+			frameCounter = 0;
+
+			if (animationOrder == 1)
+				currentFrame++;
+
+			else if (animationOrder == -1)
+				currentFrame--;
+
+			if (currentFrame >= 2)
+				animationOrder = -1;
+
+			else if (currentFrame <= 0)
+				animationOrder = 1;
+		}
+
+		//Next-tile checking section
 		tempY = y + boundY;
 		nextTile = curTile;
 
 		tempY += velocity;
 		nextTile = (x / (TILESIZE)) + (((int)(tempY / (TILESIZE))) * NBTILESWIDTH);
 
+		//nextTileC1 and nextTileC2 are used to check if the enemy collide with any of the next tiles on its way
 		nextTileC1 = ((x - boundX) / (TILESIZE)) + (((int)((tempY) / (TILESIZE))) * NBTILESWIDTH);
 		nextTileC2 = ((x + boundX) / (TILESIZE)) + (((int)((tempY) / (TILESIZE))) * NBTILESWIDTH);
 
@@ -163,18 +209,38 @@ void Enemy::move(Screen& screen, Player &player)
 				y += velocity;
 				curTile = nextTile;
 			}
-			else
-			{
-				direction = U;
-				std::cout << direction;
-			}
 
+			else
+				direction = U;
 		}
 		else
 			y += velocity;
 		break;
 
 	case L:
+		//Animation section
+		animationRow = 3;
+
+		frameCounter++;
+
+		if (frameCounter >= frameDelay)
+		{
+			frameCounter = 0;
+
+			if (animationOrder == 1)
+				currentFrame++;
+
+			else if (animationOrder == -1)
+				currentFrame--;
+
+			if (currentFrame >= 2)
+				animationOrder = -1;
+
+			else if (currentFrame <= 0)
+				animationOrder = 1;
+		}
+
+		//Next-tile checking section
 		tempX = x - boundX;
 		tempC1 = y - boundY;
 		tempC2 = y + boundY;
@@ -182,48 +248,67 @@ void Enemy::move(Screen& screen, Player &player)
 
 		tempX -= velocity;
 
+		//nextTileC1 and nextTileC2 are used to check if the enemy collide with any of the next tiles on its way
 		nextTileC1 = (tempX / (TILESIZE)) + (((int)((y - boundY) / (TILESIZE))) * NBTILESWIDTH);
 		nextTileC2 = (tempX / (TILESIZE)) + (((int)((y + boundY) / (TILESIZE))) * NBTILESWIDTH);
 
 		nextTile = (tempX / (TILESIZE)) + (((int)(y / (TILESIZE))) * NBTILESWIDTH); //nextTile à partir du centre
 
-		//TRAITEMENT LIMIT
 		if (screen.tiles[curTile]->getIsLimit() == true)
 			checkLimit(L, screen, nextTileC1, nextTileC2);
 
-		//TRAITEMENT CHANGEMENT DE TILE
 		if (curTile != nextTileC1 || curTile != nextTileC2)
 		{
-			//TRAITEMENT NON-OBSTACLE (NORMAL)
 			if (screen.tiles[nextTileC1]->getIsObstacle() == false && screen.tiles[nextTileC2]->getIsObstacle() == false)
 			{
 				x -= velocity;
 				curTile = nextTile;
 			}
+
 			else
-			{
 				direction = R;
-				std::cout << direction;
-			}
 		}
-		//SI PAS CHANGEMENT DE CASE NI LIMITE
+
 		else
 			x -= velocity;
+
 		break;
+
 	case R:
+		//Animation section
+		animationRow = 2;
+
+		frameCounter++;
+
+		if (frameCounter >= frameDelay)
+		{
+			frameCounter = 0;
+
+			if (animationOrder == 1)
+				currentFrame++;
+			else if (animationOrder == -1)
+				currentFrame--;
+
+			if (currentFrame >= 2)
+				animationOrder = -1;
+
+			else if (currentFrame <= 0)
+				animationOrder = 1;
+		}
+
+		//Next-tile checking section
 		tempX = x + boundX;
 		nextTile = curTile;
 
 		tempX += velocity;
 		nextTile = (tempX / (TILESIZE)) + (((int)(y / (TILESIZE))) * NBTILESWIDTH);
 
+		//nextTileC1 and nextTileC2 are used to check if the enemy collide with any of the next tiles on its way
 		nextTileC1 = (tempX / (TILESIZE)) + (((int)((y - boundY) / (TILESIZE))) * NBTILESWIDTH);
 		nextTileC2 = (tempX / (TILESIZE)) + (((int)((y + boundY) / (TILESIZE))) * NBTILESWIDTH);
 
 		if (screen.tiles[curTile]->getIsLimit() == true)
-		{
 			checkLimit(R, screen, nextTileC1, nextTileC2);
-		}
 
 		if (curTile != nextTileC1 || curTile != nextTileC2)
 		{
@@ -232,24 +317,20 @@ void Enemy::move(Screen& screen, Player &player)
 				x += velocity;
 				curTile = nextTile;
 			}
+
 			else
-			{
 				direction = L;
-				std::cout << direction;
-			}
 		}
+
 		else
 			x += velocity;
+
 		break;
 	}
-	//if(isColliding)
-
 }
 
 void Enemy::move(Screen& screen)
 {
-
-	//enemy can change screen lol
 	int nextTileC1;
 	int nextTileC2;
 	double tempX;
@@ -280,14 +361,14 @@ void Enemy::move(Screen& screen)
 				y -= velocity;
 				curTile = nextTile;
 			}
+
 			else
-			{
 				direction = D;
-				std::cout << direction;
-			}
 		}
+
 		else
 			y -= velocity;
+
 		break;
 
 	case D:
@@ -310,15 +391,15 @@ void Enemy::move(Screen& screen)
 				y += velocity;
 				curTile = nextTile;
 			}
+
 			else
-			{
 				direction = U;
-				std::cout << direction;
-			}
 
 		}
+
 		else
 			y += velocity;
+
 		break;
 
 	case L:
@@ -332,31 +413,29 @@ void Enemy::move(Screen& screen)
 		nextTileC1 = (tempX / (TILESIZE)) + (((int)((y - boundY) / (TILESIZE))) * NBTILESWIDTH);
 		nextTileC2 = (tempX / (TILESIZE)) + (((int)((y + boundY) / (TILESIZE))) * NBTILESWIDTH);
 
-		nextTile = (tempX / (TILESIZE)) + (((int)(y / (TILESIZE))) * NBTILESWIDTH); //nextTile à partir du centre
+		nextTile = (tempX / (TILESIZE)) + (((int)(y / (TILESIZE))) * NBTILESWIDTH);
 
-		//TRAITEMENT LIMIT
 		if (screen.tiles[curTile]->getIsLimit() == true)
 			checkLimit(L, screen, nextTileC1, nextTileC2);
 
-		//TRAITEMENT CHANGEMENT DE TILE
 		if (curTile != nextTileC1 || curTile != nextTileC2)
 		{
-			//TRAITEMENT NON-OBSTACLE (NORMAL)
 			if (screen.tiles[nextTileC1]->getIsObstacle() == false && screen.tiles[nextTileC2]->getIsObstacle() == false)
 			{
 				x -= velocity;
 				curTile = nextTile;
 			}
+
 			else
-			{
 				direction = R;
-				std::cout << direction;
-			}
+
 		}
-		//SI PAS CHANGEMENT DE CASE NI LIMITE
+
 		else
 			x -= velocity;
+
 		break;
+
 	case R:
 		tempX = x + boundX;
 		nextTile = curTile;
@@ -368,9 +447,7 @@ void Enemy::move(Screen& screen)
 		nextTileC2 = (tempX / (TILESIZE)) + (((int)((y + boundY) / (TILESIZE))) * NBTILESWIDTH);
 
 		if (screen.tiles[curTile]->getIsLimit() == true)
-		{
 			checkLimit(R, screen, nextTileC1, nextTileC2);
-		}
 
 		if (curTile != nextTileC1 || curTile != nextTileC2)
 		{
@@ -379,40 +456,39 @@ void Enemy::move(Screen& screen)
 				x += velocity;
 				curTile = nextTile;
 			}
+
 			else
-			{
 				direction = L;
-				std::cout << direction;
-			}
 		}
+
 		else
 			x += velocity;
+
 		break;
 	}
-	//if(isColliding)
-
 }
 
 void Enemy::hitRecoil(Screen& screen, int directionRecoil)
 {
-	std::cout << "RECOIL" << std::endl;
-	moveCounter = 0;
 	double velTemp = velocity;
 	int dirTemp = direction;
-	velocity = 50; //peut crasher pres d'un mur
 
+	//Sends the enemy away from the entity that hit him
+	velocity = 50;
 	direction = directionRecoil;
-	std::cout << "Direction: " << direction << std::endl;
 	move(screen);
 	velocity = velTemp;
 }
 
 void Enemy::render()
 {
-	al_draw_filled_rectangle(x - renderbX, y - renderbY, x + renderbX, y + renderbY, al_map_rgb(127, 0, 255));
+	int frameX;
+	int frameY;
 
-	//draw hitbox
-	al_draw_filled_rectangle(x - boundX, y - boundY, x + boundX, y + boundY, al_map_rgb(153, 0, 0));
+	frameX = (currentFrame % animationColumns) * frameWidth;
+	frameY = animationRow * frameHeight;
+
+	al_draw_bitmap_region(image, frameX, frameY, frameWidth, frameHeight, x - frameWidth / 2, y - frameHeight / 2, 0);
 }
 
 int Enemy::calculateDirection(Player &player)
@@ -423,9 +499,8 @@ int Enemy::calculateDirection(Player &player)
 	double diffY = player.getY() - y;
 
 	if (diffX == 0 && diffY == 0)
-	{
 		directionFinal = U;
-	}
+
 	else if (diffX == 0 && diffY != 0)
 	{
 		if (diffY > 0)
@@ -433,6 +508,7 @@ int Enemy::calculateDirection(Player &player)
 		else
 			directionFinal = U;
 	}
+
 	else if (diffX != 0 && diffY == 0)
 	{
 		if (diffX > 0)
@@ -440,6 +516,7 @@ int Enemy::calculateDirection(Player &player)
 		else
 			directionFinal = L;
 	}
+
 	else if (diffX != 0 && diffY != 0)
 	{
 		if (abs(diffX) == abs(diffY))
@@ -451,6 +528,7 @@ int Enemy::calculateDirection(Player &player)
 				else
 					directionFinal = R;
 			}
+
 			else if (diffX > 0 && diffY > 0)
 			{
 				if (randomKnockback == 0)
@@ -458,6 +536,7 @@ int Enemy::calculateDirection(Player &player)
 				else
 					directionFinal = R;
 			}
+
 			else if (diffX < 0 && diffY > 0)
 			{
 				if (randomKnockback == 0)
@@ -465,6 +544,7 @@ int Enemy::calculateDirection(Player &player)
 				else
 					directionFinal = L;
 			}
+
 			else if (diffX < 0 && diffY < 0)
 			{
 				if (randomKnockback == 0)
@@ -473,6 +553,7 @@ int Enemy::calculateDirection(Player &player)
 					directionFinal = L;
 			}
 		}
+
 		else if (abs(diffX) < abs(diffY))
 		{
 			if (diffX > 0)
@@ -480,6 +561,7 @@ int Enemy::calculateDirection(Player &player)
 			else
 				directionFinal = L;
 		}
+
 		else
 		{
 			if (diffY > 0)
@@ -487,7 +569,6 @@ int Enemy::calculateDirection(Player &player)
 			else
 				directionFinal = U;
 		}
-
 	}
 
 	return directionFinal;

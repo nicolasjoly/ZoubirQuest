@@ -1,6 +1,10 @@
 Type
 0: ground
 1: tree
+2: stairs
+3: dungeon ground
+4: dungeon rock
+5: dungeon trap
 
 isObstacle
 0: false
